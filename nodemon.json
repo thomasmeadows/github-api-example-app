@@ -1,0 +1,6 @@
+{
+  "verbose": true,
+  "watch": ["server"],
+  "ignore": ["server.build.js", "server.build.js.map", "server/public"],
+  "exec": "webpack; node server/server.build --watch server"
+}
