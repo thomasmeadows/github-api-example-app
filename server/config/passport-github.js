@@ -6,7 +6,7 @@ export default function(app, passport) {
   passport.use(new GithubStrategy({
     clientID: GITHUB.CLIENT_ID,
     clientSecret: GITHUB.CLIENT_SECRET,
-    callbackURL: ROUTES.GITHUB_CALLBACK_URL,
+    callbackURL: ROUTES.GITHUB_AUTH_CALLBACK_URL,
   }, (accessToken, refreshToken, user, done) => {
     done(null, user);
   }));
@@ -17,7 +17,7 @@ export default function(app, passport) {
   );
 
   // authentication callback redirects to /login if authentication failed or home if successful
-  app.get(ROUTES.GITHUB_CALLBACK_PATH,
+  app.get(ROUTES.GITHUB_AUTH_CALLBACK_PATH,
     passport.authenticate(GITHUB.PASSPORT_AUTH_NAME, {
       failureRedirect: ROUTES.LOGIN
     }), (req, res) => {

@@ -98,8 +98,8 @@ CONSTANTS.ROUTES = {
   LOGOUT: '/logout',
   PROFILE: '/profile',
   GITHUB_PASSPORT_AUTH_PATH: '/auth/github',
-  GITHUB_CALLBACK_PATH: process.env.GITHUB_CALLBACK_PATH,
-  GITHUB_CALLBACK_URL: process.env.GITHUB_CALLBACK_URL
+  GITHUB_AUTH_CALLBACK_PATH: process.env.GITHUB_AUTH_CALLBACK_PATH,
+  GITHUB_AUTH_CALLBACK_URL: process.env.GITHUB_AUTH_CALLBACK_URL
 };
 
 CONSTANTS.SERVER = {
@@ -113,8 +113,8 @@ CONSTANTS.SERVER = {
 
 CONSTANTS.GITHUB = {
   API_URL: process.env.GITHUB_API_URL,
-  CLIENT_ID: process.env.GITHUB_CLIENT_ID,
-  CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
+  CLIENT_ID: process.env.GITHUB_OAUTH_CLIENT_ID,
+  CLIENT_SECRET: process.env.GITHUB_OAUTH_CLIENT_SECRET,
   PASSPORT_AUTH_NAME: 'github',
   ROUTES: {
     ESTIMATE: '/v1.2/requests/estimate',
@@ -446,7 +446,10 @@ module.exports = {
         use: [{
           loader: 'css-loader'
         }, {
-          loader: 'sass-loader'
+          loader: 'sass-loader',
+          options: {
+            includePaths: [_path2.default.resolve(__dirname, 'node_modules/foundation-sites/scss')]
+          }
         }],
         // use style-loader in development
         fallback: 'style-loader'
@@ -697,7 +700,7 @@ exports.default = function (app, passport) {
   passport.use(new _passportGithub2.default({
     clientID: GITHUB.CLIENT_ID,
     clientSecret: GITHUB.CLIENT_SECRET,
-    callbackURL: ROUTES.GITHUB_CALLBACK_URL
+    callbackURL: ROUTES.GITHUB_AUTH_CALLBACK_URL
   }, function (accessToken, refreshToken, user, done) {
     done(null, user);
   }));
@@ -705,7 +708,7 @@ exports.default = function (app, passport) {
   app.get(ROUTES.GITHUB_PASSPORT_AUTH_PATH, passport.authenticate(GITHUB.PASSPORT_AUTH_NAME));
 
   // authentication callback redirects to /login if authentication failed or home if successful
-  app.get(ROUTES.GITHUB_CALLBACK_PATH, passport.authenticate(GITHUB.PASSPORT_AUTH_NAME, {
+  app.get(ROUTES.GITHUB_AUTH_CALLBACK_PATH, passport.authenticate(GITHUB.PASSPORT_AUTH_NAME, {
     failureRedirect: ROUTES.LOGIN
   }), function (req, res) {
     res.redirect(ROUTES.HOME);
