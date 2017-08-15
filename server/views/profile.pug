@@ -1,5 +1,9 @@
 include includes/head.pug
 
-p demo profile
+  img(src=user._json.avatar_url)
+  p=user.displayName
+  p=user.profileUrl
+  each email in user.emails
+    p=email.email
 
 include includes/foot.pug

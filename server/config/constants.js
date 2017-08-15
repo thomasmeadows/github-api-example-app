@@ -61,7 +61,7 @@ CONSTANTS.GITHUB = {
     COMPLETED: 'completed'
   },
   SCOPE: {
-    PROFILE: 'profile'
+    USER: 'user'
   }
 };
 

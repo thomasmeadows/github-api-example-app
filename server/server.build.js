@@ -132,7 +132,7 @@ CONSTANTS.GITHUB = {
     COMPLETED: 'completed'
   },
   SCOPE: {
-    PROFILE: 'profile'
+    USER: 'user'
   }
 };
 
@@ -229,11 +229,11 @@ var _passportGithub = __webpack_require__(26);
 
 var _passportGithub2 = _interopRequireDefault(_passportGithub);
 
-var _routes = __webpack_require__(28);
+var _routes = __webpack_require__(29);
 
 var _routes2 = _interopRequireDefault(_routes);
 
-var _views = __webpack_require__(35);
+var _views = __webpack_require__(36);
 
 var _views2 = _interopRequireDefault(_views);
 
@@ -702,10 +702,13 @@ exports.default = function (app, passport) {
     clientSecret: GITHUB.CLIENT_SECRET,
     callbackURL: ROUTES.GITHUB_AUTH_CALLBACK_URL
   }, function (accessToken, refreshToken, user, done) {
+    user.token = accessToken;
     done(null, user);
   }));
 
-  app.get(ROUTES.GITHUB_PASSPORT_AUTH_PATH, passport.authenticate(GITHUB.PASSPORT_AUTH_NAME));
+  app.get(ROUTES.GITHUB_PASSPORT_AUTH_PATH, passport.authenticate(GITHUB.PASSPORT_AUTH_NAME, {
+    scope: [GITHUB.SCOPE.USER]
+  }));
 
   // authentication callback redirects to /login if authentication failed or home if successful
   app.get(ROUTES.GITHUB_AUTH_CALLBACK_PATH, passport.authenticate(GITHUB.PASSPORT_AUTH_NAME, {
@@ -713,11 +716,24 @@ exports.default = function (app, passport) {
   }), function (req, res) {
     res.redirect(ROUTES.HOME);
   });
+
+  app.use(function (req, res, next) {
+    if (req.user && req.user.token) {
+      req.github = new _githubApi2.default({
+        token: req.user.token
+      });
+    }
+    next();
+  });
 };
 
 var _passportGithub = __webpack_require__(27);
 
 var _passportGithub2 = _interopRequireDefault(_passportGithub);
+
+var _githubApi = __webpack_require__(28);
+
+var _githubApi2 = _interopRequireDefault(_githubApi);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -735,6 +751,12 @@ module.exports = require("passport-github");
 
 /***/ }),
 /* 28 */
+/***/ (function(module, exports) {
+
+module.exports = require("github-api");
+
+/***/ }),
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -757,27 +779,27 @@ exports.default = function (app) {
   (0, _2.default)(app);
 };
 
-var _login = __webpack_require__(29);
+var _login = __webpack_require__(30);
 
 var _login2 = _interopRequireDefault(_login);
 
-var _logout = __webpack_require__(30);
+var _logout = __webpack_require__(31);
 
 var _logout2 = _interopRequireDefault(_logout);
 
-var _home = __webpack_require__(31);
+var _home = __webpack_require__(32);
 
 var _home2 = _interopRequireDefault(_home);
 
-var _profile = __webpack_require__(32);
+var _profile = __webpack_require__(33);
 
 var _profile2 = _interopRequireDefault(_profile);
 
-var _api = __webpack_require__(33);
+var _api = __webpack_require__(34);
 
 var _api2 = _interopRequireDefault(_api);
 
-var _ = __webpack_require__(34);
+var _ = __webpack_require__(35);
 
 var _2 = _interopRequireDefault(_);
 
@@ -786,7 +808,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 ;
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -809,7 +831,7 @@ var _require = __webpack_require__(0),
 ;
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -832,7 +854,7 @@ var _require = __webpack_require__(0),
 ;
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -861,7 +883,7 @@ var _require = __webpack_require__(0),
 ;
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -873,7 +895,12 @@ Object.defineProperty(exports, "__esModule", {
 
 exports.default = function (app) {
   app.get(ROUTES.PROFILE, _ensureAuthenticated2.default, function (req, res) {
-    return res.render(VIEWS.PROFILE);
+    var thisUser = req.github.getUser();
+    thisUser.getEmails().then(function (emailResponse) {
+      return res.render(VIEWS.PROFILE, {
+        user: Object.assign({}, req.user, { emails: emailResponse.data })
+      });
+    });
   });
 };
 
@@ -890,7 +917,7 @@ var _require = __webpack_require__(0),
 ;
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -905,7 +932,7 @@ exports.default = function (app) {};
 ;
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -930,7 +957,7 @@ exports.default = function (app) {
 ;
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
