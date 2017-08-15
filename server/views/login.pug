@@ -1,6 +1,8 @@
 include includes/head.pug
 
-div demo login
-a(href="/auth/github") github login
+div(class="grid-y" style="height: 500px;")
+  div(class="cell small-6 medium-6 large-6")
+  div(class="cell small-6 medium-6 large-6 text-center")
+    a(href="/auth/github" class="button") Login with github
 
 include includes/foot.pug
